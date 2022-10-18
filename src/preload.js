@@ -1,53 +1,58 @@
 const {spawn} = require('child_process')
 
 const command = {
-    play: `click menu item "播放"`,
-    pause: `click menu item "暂停"`,
-    nextTrack: `click menu item "下一个"`,
-    previousTrack: `click menu item "上一个"`,
-    like: `click menu item "喜欢歌曲"`,
-    dislike: `click menu item "取消喜欢"`,
-    toggleLyrics: `click menu item "打开/关闭歌词"`,
+    play: "Play",
+    pause: "Pause",
+    nextTrack: "Next",
+    previousTrack: "Previous",
+    like: "Like",
+    dislike: "Dislike",
+    toggleLyrics: "Show/Hide Lyrics",
     exit: `tell application "System Events" to tell process "NeteaseMusic"
-                click menu item "退出 网易云音乐" of menu "网易云音乐" of menu bar item "网易云音乐" of menu bar 1
+                click menu item 11 of menu 1 of menu bar item 2 of menu bar 1
            end tell`,
-    getMenuControlFirstItemText: `tell application "System Events" to tell process "NeteaseMusic"
-                                        tell menu "控制" of menu bar item "控制" of menu bar 1
-                                            set val to menu item 1
+    getMenuControlFirstItemText: `set NeteaseMusicApp to "/Applications/NeteaseMusic.app" as POSIX file
+                                  tell application "System Events" to tell process "NeteaseMusic"
+                                        tell menu 1 of menu bar item 4 of menu bar 1
+                                            set playText to localized string of "Play" in bundle NeteaseMusicApp
+                                            set PauseText to localized string of "Pause" in bundle NeteaseMusicApp
+                                            if name of menu item 1 = playText then
+                                                return "PLAY"
+                                            else if name of menu item 1 = PauseText then
+                                                return "PAUSE"
+                                            else
+                                                return "UNKNOWN"
+                                            end if
                                         end tell
-                                    end tell
-                                return val`,
-    genMenuControlScript: (controlScript) => {
+                                    end tell`,
+    genMenuControlScript: (textKey) => {
         return `tell application "System Events" to tell process "NeteaseMusic"
-                    tell menu "控制" of menu bar item "控制" of menu bar 1
-                        ${controlScript}
+                    tell menu 1 of menu bar item 4 of menu bar 1
+                        try
+                            click menu item my localizedString("${textKey}")
+                        end try
                     end tell
-                end tell`
+                end tell
+                
+                on localizedString(key)
+                    set NeteaseMusicApp to "/Applications/NeteaseMusic.app" as POSIX file
+                    return localized string of key in bundle NeteaseMusicApp
+                end localizedString`
     }
 }
 
-async function runNeteaseMusic(script, ignoreErr) {
+async function runNeteaseMusic(script) {
     try {
-        return await runAppleScript(command.genMenuControlScript(script))
+        return await runAppleScript(script)
     } catch (e) {
-        const errMessage = `${e}`
-        if (errMessage.includes('不能获得“process "NeteaseMusic"”')) {
-            return "Exit"
-        }
-        if (ignoreErr.length > 0) {
-            for (const err of ignoreErr) {
-                if (errMessage.includes(err)) {
-                    return ''
-                }
-            }
-        }
-        window.utools.showNotification(errMessage)
+        window.utools.showNotification(e)
+        exitPlugin()
     }
 }
 
 async function runAppleScript(script) {
     if (!window.utools.isMacOS()) {
-        throw new Error('仅支持MacOS')
+        throw new Error('MacOS only supported.')
     }
     const {stdout, stderr, killed, code} = await runCommand('osascript', ['-e', script], 1000)
     if (stdout) {
@@ -55,7 +60,7 @@ async function runAppleScript(script) {
     } else if (stderr) {
         throw new Error(stderr)
     } else if (killed) {
-        throw new Error('网易云音乐未启动')
+        throw new Error('NeteaseMusic is not running.')
     }
     return ''
 }
@@ -94,9 +99,9 @@ async function getPlayState() {
     const res = await runNeteaseMusic(command.getMenuControlFirstItemText, [])
     if (res === 'exit') {
         return "EXIT"
-    } else if (res.includes('menu item 暂停')) {
+    } else if (res.includes('PAUSE')) {
         return "PLAYING"
-    } else if (res.includes('menu item 播放')) {
+    } else if (res.includes('PLAY')) {
         return "PAUSED"
     }
     return undefined;
@@ -109,30 +114,30 @@ function exitPlugin() {
 
 let Controller = {
     previousTrack(){
-        return runNeteaseMusic(command.genMenuControlScript(command.previousTrack), [])
+        return runNeteaseMusic(command.genMenuControlScript(command.previousTrack))
     },
     nextTrack(){
-        return runNeteaseMusic(command.genMenuControlScript(command.nextTrack), [])
+        return runNeteaseMusic(command.genMenuControlScript(command.nextTrack))
     },
     like(){
-        return runNeteaseMusic(command.genMenuControlScript(command.like), [`不能获得“menu item "喜欢歌曲"`])
+        return runNeteaseMusic(command.genMenuControlScript(command.like))
     },
     dislike(){
-        return runNeteaseMusic(command.genMenuControlScript(command.dislike), [`不能获得“menu item "取消喜欢"`])
+        return runNeteaseMusic(command.genMenuControlScript(command.dislike))
     },
     async playPause() {
         let state = (await getPlayState())
         if (state === 'PLAYING'){
-            return  runNeteaseMusic(command.genMenuControlScript(command.pause), [`不能获得“menu item "暂停"`])
+            return  runNeteaseMusic(command.genMenuControlScript(command.pause))
         } else{
-            return  runNeteaseMusic(command.genMenuControlScript(command.play), [`不能获得“menu item "播放"`])
+            return  runNeteaseMusic(command.genMenuControlScript(command.play))
         }
     },
     exit(){
-        return runNeteaseMusic(command.genMenuControlScript(command.exit), [])
+        return runNeteaseMusic(command.exit)
     },
     toggleLyrics(){
-        return runNeteaseMusic(command.genMenuControlScript(command.toggleLyrics), [])
+        return runNeteaseMusic(command.genMenuControlScript(command.toggleLyrics))
     }
 }
 
