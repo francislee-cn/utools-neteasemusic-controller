@@ -1,0 +1,47 @@
+{
+  "logo": "netease.png",
+  "preload": "preload.js",
+  "platform": ["darwin"],
+  "features": [
+    {
+      "code": "previousTrack",
+      "explain": "网易云音乐 - 上一首",
+      "cmds":["上一首", "Previous Track"]
+    },
+    {
+      "code": "nextTrack",
+      "explain": "网易云音乐 - 下一首",
+      "cmds":["下一首", "Next Track"]
+    },
+    {
+      "code": "like",
+      "explain": "网易云音乐 - 喜欢",
+      "cmds":["红心","喜欢", "Like Track"]
+    },
+    {
+      "code": "dislike",
+      "explain": "网易云音乐 - 取消喜欢",
+      "cmds":["取消红心","取消喜欢", "Dislike Track"]
+    },
+    {
+      "code": "play/pause",
+      "explain": "网易云音乐 - 播放/暂停",
+      "cmds":["播放/暂停", "Play/Pause"]
+    },
+    {
+      "code": "toggleLyrics",
+      "explain": "网易云音乐 - 打开/关闭歌词",
+      "cmds":["打开/关闭歌词", "Lyrics"]
+    },
+    {
+      "code": "exit",
+      "explain": "网易云音乐 - 退出",
+      "cmds":["退出", "Exit"]
+    },
+    {
+      "code": "allCommand",
+      "explain": "网易云音乐小助手",
+      "cmds":["网易云小助手","Netease Music"]
+    }
+  ]
+}
