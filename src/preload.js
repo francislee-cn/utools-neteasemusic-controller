@@ -211,13 +211,13 @@ window.exports = {
             // 进入插件应用时调用（可选）
             enter: (action, callbackSetList) => {
                 callbackSetList([
-                    {title: '播放/暂停', description: "网易云音乐 - 暂停", icon: 'netease.png', cmd: Controller.playPause},
+                    {title: '播放/暂停', description: "网易云音乐 - 播放/暂停", icon: 'netease.png', cmd: Controller.playPause},
                     {title: '上一首', description: "网易云音乐 - 上一首", icon: 'netease.png', cmd: Controller.previousTrack},
                     {title: '下一首', description: "网易云音乐 - 下一首", icon: 'netease.png', cmd: Controller.nextTrack},
                     {title: '喜欢', description: "网易云音乐 - 喜欢", icon: 'netease.png', cmd: Controller.like},
                     {title: '取消喜欢', description: "网易云音乐 - 取消喜欢", icon: 'netease.png', cmd: Controller.dislike},
                     {title: '打开/关闭歌词', description: "网易云音乐 - 打开/关闭歌词", icon: 'netease.png', cmd: Controller.toggleLyrics},
-                    {title: '退出', description: "网易云音乐 - 退出", icon: 'netease.png', cmd: Controller.exit},
+                    {title: '退出网易云', description: "网易云音乐 - 退出", icon: 'netease.png', cmd: Controller.exit},
                 ])
             },
             select: async (action, itemData, callbackSetList) => {
